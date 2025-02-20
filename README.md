@@ -1,3 +1,21 @@
+# FORK OF portainer/agent
+adds in a logging middleware that saves all HTTP requests and responses to :9001 to ./agentlogs.txt
+running:
+```bash
+devenv shell # optional, just installs right go toolchain
+./setup.sh # downloads required binaries for build
+make all # builds the go project
+./dev.sh build # builds the docker image, prints image name if successful
+docker run -d   -p 9001:9001   --name portainer_agent   --restart=always   -v /var/run/docker.sock:/var/run/docker.sock   -v /var/lib/docker/volumes:/var/lib/docker/volumes   -v /:/host -v ./logs.txt:/app/agentlogs.txt   BUILT_IMAGE_HERE
+```
+
+In order to build, you must have portainer/portainer cloned into `../server-ce/`. My file tree looks smth like:
+```
+./portainer
+ |- agent/ - this report
+ `- server-ce/ - portainer/portainer repo
+```
+
 # Portainer agent
 
 ## Purpose

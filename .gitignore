@@ -6,4 +6,12 @@ dist
 .DS_Store
 go.work.sum
 coverage.out
-__debug_bin*
+__debug_bin*# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml

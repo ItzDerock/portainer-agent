@@ -79,7 +79,10 @@ func (server *APIServer) Start(edgeMode bool) error {
 		ContainerPlatform:    server.containerPlatform,
 	}
 
-	httpHandler := handler.NewHandler(config)
+  // intercept all traffic
+	originalHttpHandler := handler.NewHandler(config)
+  httpHandler := LoggingMiddleware(originalHttpHandler)
+
 	httpServer := &http.Server{
 		Addr:         server.addr + ":" + server.port,
 		Handler:      httpHandler,
