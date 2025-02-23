@@ -1,4 +1,4 @@
-package http 
+package http
 
 import (
 	"bytes"
@@ -26,11 +26,16 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		// Read and log the request body
 		var requestBody bytes.Buffer
 		if r.Body != nil {
-			r.Body = io.NopCloser(io.TeeReader(r.Body, &requestBody))
+			_, err := io.Copy(&requestBody, r.Body)
+			if err != nil {
+				logger.Printf("Error reading request body: %v", err)
+			}
+			// Restore the body so it can be read again by the handler
+			r.Body = io.NopCloser(bytes.NewReader(requestBody.Bytes()))
 		}
 		body := requestBody.String()
 
-		logger.Printf("Request from %s\n%s %s\nHeaders:\n%s\nBody:\n%s\n", ip, method, path, headers, body)
+		logger.Printf("Request from %s\n%s %s\nHeaders:\n%s\nBody:\n%s\n\n", ip, method, path, headers, body)
 
 		// Response logging
 		rec := &ResponseRecorder{ResponseWriter: w, body: new(bytes.Buffer), statusCode: http.StatusOK}
@@ -43,7 +48,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		responseHeaders := formatHeaders(rec.Header())
 		responseBody := rec.body.String()
 
-		logger.Printf("Response: %d %s\nHeaders:\n%s\nBody:\n%s\nDuration: %v\n---\n",
+		logger.Printf("Response: %d %s\nHeaders:\n%s\nBody:\n%s\n\nDuration: %v\n---\n",
 			rec.statusCode, http.StatusText(rec.statusCode), responseHeaders, responseBody, duration)
 	})
 }
@@ -74,4 +79,3 @@ func formatHeaders(headers http.Header) string {
 	}
 	return buffer.String()
 }
-
